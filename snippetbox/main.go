@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 )
 
@@ -15,7 +17,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 // Add a snippetView handler function
 func snippetView(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Display a specific snippet..."))
+    id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	msg := fmt.Sprintf("Display a specific snippet with ID %d...", id)
+	w.Write([]byte(msg))
 }
 
 //Add a snippetCreate handler function
@@ -28,8 +37,8 @@ func main() {
 	// Use the http.NewServeMux() function to initialize a new servemux, then
 	// register the home function as the handler for the "/" URL pattern.
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
+	mux.HandleFunc("/{$}", home)
+	mux.HandleFunc("/snippet/view/{id}", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
 	// Print a log message to say that the server is starting.
