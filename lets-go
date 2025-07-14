@@ -64,3 +64,15 @@
 
   "HTTP Method Precedence"
   - The most specific pattern will still win here, which includes the HTTP method. POST foo/bar will beat foo/bar
+
+"HTTP Status Codes"
+
+  "w.WriteHeader"
+  - Only possible once per response. Afte the code has been written, it can't be changed (logs a warning)
+  - without w.WriteHeader(), first w.Write() call will auto-send a 200 code.
+  - All header map changes must be made before calling w.WriteHeader or w.Write
+
+  "net/http HTTP Code Constants"
+  - Provides default HTTP code constants, representing each code: StatusOK, Statuscreated, StatusAccepted (201/2/3, respectively)
+  - Also provides API request types: MethodGet, MethodHead, MethodPut, etc
+
