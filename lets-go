@@ -76,3 +76,14 @@
   - Provides default HTTP code constants, representing each code: StatusOK, Statuscreated, StatusAccepted (201/2/3, respectively)
   - Also provides API request types: MethodGet, MethodHead, MethodPut, etc
 
+"http.FileServer Handler"
+  - Sanitizes requests by running through path.Clean() before searching for files. Removes . and .. from URL paths (stops dir. traversal attacks)
+  - Range requests are supported, which allows for splitting and partial downlaods, ie:
+      curl -h -H "Range: bytes=100-199"
+  - If not modified since last request, will send 304 Not Modified
+  - Generally not used in production, as recently-opened files will be stored in RAM
+
+
+##################################################
+  "Chapter 3 - Configuration and Error Handling"
+##################################################

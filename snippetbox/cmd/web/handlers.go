@@ -11,7 +11,7 @@ import (
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 
-	// Initialize a slice container the path to the two HTML files.
+	// Initialize a slice containing the path to the two HTML files.
 	// Base template must be the *first* file!
 	files := []string{
 		"./ui/html/base.tmpl",
