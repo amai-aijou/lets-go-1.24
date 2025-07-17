@@ -87,3 +87,8 @@
 ##################################################
   "Chapter 3 - Configuration and Error Handling"
 ##################################################
+
+"Command-line flags"
+  - flag.String(), flag.Int(), flag.Bool() etc allow for CLI flags to be passed in
+  - flag.Parse() *must* be run before utilizing any variables, as it reads in the values and actually assigns them
+  - ENV variables can be used, but not recommended, as they can't contain default values; instead, pass $ENV into flag.String()!
