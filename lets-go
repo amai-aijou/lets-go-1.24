@@ -92,3 +92,11 @@
   - flag.String(), flag.Int(), flag.Bool() etc allow for CLI flags to be passed in
   - flag.Parse() *must* be run before utilizing any variables, as it reads in the values and actually assigns them
   - ENV variables can be used, but not recommended, as they can't contain default values; instead, pass $ENV into flag.String()!
+
+"Structured Logging"
+  - Commonly instantiated at the same time as configuration (via handler), resulting in singular command:
+      logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{...}))
+  - "Variadic methods" used to create log entries, such as Debug(), Info(), Warn(), Error(). Command and output below:
+      logger.Info("request received", "method", "GET", "path", "/")
+        time=2024-03-18T11:29:23.000+00:00 level=INFO msg="request received" method=GET path=/
+  - Attributes must always be strings, but values can be of any type. ", =, and whitespace are auto-wrapped in double quotes in output
