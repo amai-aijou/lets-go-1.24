@@ -100,3 +100,16 @@
       logger.Info("request received", "method", "GET", "path", "/")
         time=2024-03-18T11:29:23.000+00:00 level=INFO msg="request received" method=GET path=/
   - Attributes must always be strings, but values can be of any type. ", =, and whitespace are auto-wrapped in double quotes in output
+
+
+##################################################
+  "Chapter 3 - Configuration and Error Handling"
+##################################################
+
+"Database Connection Pools"
+  - Go can connect directly to databases through a function: sql.Open("mysql", "web:pass@/example?parseTime=true")
+  - sql.Open(Driver Name, Data Source Name) The latter is also known as DSN, which shows how to connect to a database
+  - parseTime is driver-specific and instructs it to convert SQL TIME and DATE fields to Go time.time values 
+  - returns a pool of many connections, not a singular database value. Go manages connections as needed
+  - Long-lived. Can initialize in main() and pass to handlers. don't just call in the handler.
+  - 
