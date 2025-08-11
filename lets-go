@@ -103,7 +103,7 @@
 
 
 ##################################################
-  "Chapter 3 - Configuration and Error Handling"
+     "Chapter 4 - Database-driven responses"
 ##################################################
 
 "Database Connection Pools"
@@ -112,4 +112,9 @@
   - parseTime is driver-specific and instructs it to convert SQL TIME and DATE fields to Go time.time values 
   - returns a pool of many connections, not a singular database value. Go manages connections as needed
   - Long-lived. Can initialize in main() and pass to handlers. don't just call in the handler.
-  - 
+ 
+"Executing SQL Statements"
+  - Go provides three methods for executing database queries:
+    "DB.Query()"		// Used for SELECT queries which return multiple rows
+    "DB.QueryRow()"		// Used for SELECT queries which return a single row
+    "DB.Exec()"			// Used for statements which don't return rows (INSERT, DELETE, etc)
