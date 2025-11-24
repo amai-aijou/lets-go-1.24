@@ -27,7 +27,7 @@ func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 
 	// Create DSN (Data Source Name) for Go MySQL driver
-	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
+	dsn := flag.String("dsn", "web:example@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -42,7 +42,7 @@ func main() {
 	// Close the DB connection pool (before the main function exits)
 	defer db.Close()
 
-	// Instantiate a new application struct containinng all dependencies
+	// Instantiate a new application struct containing all dependencies
 	// AND: Instantiate a new SnippetModel instance with connection pool
 	app := &application{
 		logger:		logger,
