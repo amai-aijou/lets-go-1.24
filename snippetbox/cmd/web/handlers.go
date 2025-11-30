@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
+//	"html/template"
 	"net/http"
 	"strconv"
 
@@ -13,6 +13,17 @@ import (
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 
+	// 4.8: Use SnippetModel.Latest() method, dumping snippet contents to HTTP response
+	snippets, err := app.snippets.Latest()
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
+	}
+/*
 	// Initialize a slice containing the path to the two HTML files.
 	// Base template must be the *first* file!
 	files := []string{
@@ -35,6 +46,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, r, err)
 	}
+	*/
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
