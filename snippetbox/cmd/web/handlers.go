@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"snippetbox.nerv.com/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +44,23 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet with Id %d...", id)
+	// 4.7: Use SnippetModel's Get() to retrieve data for record based on id (404 for no match)
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.NotFound(w, r)
+		}else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	// 4.7: Write the snippet data as plain-text HTTP response
+	fmt.Fprintf(w, "%+v", snippet)
+
+	// Old: saving in case needed?
+	//fmt.Fprintf(w, "Display a specific snippet with Id %d...", id)
+
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
