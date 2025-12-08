@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-//	"html/template"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -23,30 +23,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	for _, snippet := range snippets {
 		fmt.Fprintf(w, "%+v\n", snippet)
 	}
-/*
-	// Initialize a slice containing the path to the two HTML files.
-	// Base template must be the *first* file!
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
-	}
-
-	// Use template.ParseFiles() to read a template in
-	// use serverError() helper to log error message, then send 500 error
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err) 
-		return
-	}
-
-	// Use the Execute() method to write the content as response body
-	// The last parameter represents dynamic data to pass in (for now, nil)
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, r, err)
-	}
-	*/
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -67,11 +43,30 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4.7: Write the snippet data as plain-text HTTP response
-	fmt.Fprintf(w, "%+v", snippet)
+	// 5.1: Initialize a slice containing the paths to the view.tmpl file, plus base and navi partials
+	files := []string{
+		"./ui/html/base.tmpl",
+		"./ui/html/partials/nav.tmpl",
+		"./ui/html/pages/view.tmpl",
+	}
 
-	// Old: saving in case needed?
-	//fmt.Fprintf(w, "Display a specific snippet with Id %d...", id)
+	// 5.1: Parse the template files
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// 5.1: Create an instance of a templateData struct (cmd/web/templates.go) to hold the snippet data
+	data := templateData{
+		Snippet: snippet,
+	}
+
+	// 5.1: Execute the template files after parse. Final Parameter is the struct created above
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 
 }
 
