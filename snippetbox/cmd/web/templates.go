@@ -7,4 +7,6 @@ import "snippetbox.nerv.com/internal/models"
 // for one piece of dynamic data to be passed in, so we wrap multiple pieces into a single struct!
 type templateData struct {
 	Snippet models.Snippet
+	// 5.2: include a Snippets field within the templatedata struct
+	Snippets []models.Snippet
 }
