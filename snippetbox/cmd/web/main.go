@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template" // 5.3
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,12 +17,12 @@ import (
 
   // Application struct to hold app-wide dependencies
 type application struct {
-	logger		*slog.Logger
-	snippets	*models.SnippetModel
+	logger			*slog.Logger
+	snippets		*models.SnippetModel
+	templateCache	map[string]*template.Template
 }
 
 func main() {
-		
 	// CLI flags for runtime-configurable values
 	// flag.Parse() must be called *before* use of variables to store them
 	addr := flag.String("addr", ":4000", "HTTP network address")
@@ -42,11 +43,19 @@ func main() {
 	// Close the DB connection pool (before the main function exits)
 	defer db.Close()
 
+	// 5.3: Initialize a new template cache
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	// Instantiate a new application struct containing all dependencies
 	// AND: Instantiate a new SnippetModel instance with connection pool
 	app := &application{
-		logger:		logger,
-		snippets:	&models.SnippetModel{DB: db},
+		logger:			logger,
+		snippets:		&models.SnippetModel{DB: db},
+		templateCache:	templateCache,
 	}
 
     // Info() method starting message (with listen addr as attribute)

@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -20,30 +19,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 5.2: create a slice  holding the locations of the HTTP file templates...
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
-	}
-
-	// 5.2: ...and Parse them for use
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	// 5.2: Create an instance of a templateData struct holding the slice of snippets
-	data := templateData{
+	// 5.3: user the "render" helper function from helpers.go
+	app.render(w, r, http.StatusOK, "home.tmpl", templateData{
 		Snippets: snippets,
-	}
-
-	// 5.2: Pass in the templateData struct when executing the template
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, r, err)
-	}
+	})
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -64,31 +43,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 5.1: Initialize a slice containing the paths to the view.tmpl file, plus base and navi partials
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/view.tmpl",
-	}
-
-	// 5.1: Parse the template files
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	// 5.1: Create an instance of a templateData struct (cmd/web/templates.go) to hold the snippet data
-	data := templateData{
+	app.render(w, r, http.StatusOK, "view.tmpl", templateData{
 		Snippet: snippet,
-	}
-
-	// 5.1: Execute the template files after parse. Final Parameter is the struct created above
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, r, err)
-	}
-
+	})
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {

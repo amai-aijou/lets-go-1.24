@@ -1,6 +1,11 @@
 package main
 
-import "snippetbox.nerv.com/internal/models"
+import (
+	"html/template" // 5.3
+	"path/filepath" // 5.3
+
+	"snippetbox.nerv.com/internal/models"
+)
 
 // 5.1: Define a templateData type as a holding structure for any dynamic data needed
 // to be passed to the HTML templates. This is because Go's html/template package only allows
@@ -9,4 +14,41 @@ type templateData struct {
 	Snippet models.Snippet
 	// 5.2: include a Snippets field within the templatedata struct
 	Snippets []models.Snippet
+}
+
+// 5.3: Function to parse templates at application start, then store as in-memory cache
+func newTemplateCache() (map[string]*template.Template, error) {
+	// 5.3: Initialize a new map to as memory cache
+	cache := map[string]*template.Template{}
+
+	// 5.3: Use filepath.glob() to get a slice of all filepaths that match pattern.
+	pages, err := filepath.Glob("./ui/html/pages/*.tmpl")
+	if err != nil {
+		return nil, err
+	}
+
+	// 5.3: Loop through the page filepaths one-by-one
+	for _, page := range pages {
+		// 5.3: Extract filename (like 'home.tmpl') from the full filepath and assign to name variable
+		name := filepath.Base(page)
+
+		// 5.3: Create a slice containing the filepaths for base template, any partials and the page
+		files := []string{
+			"./ui/html/base.tmpl",
+			"./ui/html/partials/nav.tmpl",
+			page,
+		}
+
+		// 5.3: Parse the files into a template set
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			return nil, err
+		}
+
+		// 5.3: Add the template set to the map, using the name of the page(like 'home.tmpl') as the key
+		cache[name] = ts
+	}
+
+	// 5.3: Return the map
+	return cache, nil
 }
