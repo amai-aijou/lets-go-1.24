@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes" // 5.4
 	"fmt" // 5.3
 	"net/http"
 	"runtime/debug" // 3.4: Needed for debug mode
@@ -31,10 +32,21 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 		return
 	}
 
-	w.WriteHeader(status)
+	// 5.4: Initialize new buffer
+	buf := new(bytes.Buffer)
 
-	err := ts.ExecuteTemplate(w, "base", data)
+	// 5.4: Write the template to buffer, instead of straight to http.ResponseWriter.
+	// If error, call serverError() helper, then return
+	err := ts.ExecuteTemplate(buf, "base", data)
 	if err != nil {
 		app.serverError(w, r, err)
+		return
 	}
+
+	// 5.4: If template writes to buffer without error, it's safe to write HTTP status code to http.ResponseWriter!
+	w.WriteHeader(status)
+
+	// 5.4: Write contents of buffer to http.ResponseWriter.
+	// NOTE: This is another time where we pass http.ResponseWriter to a function that takes an io.Writer.
+	buf.WriteTo(w)
 }
