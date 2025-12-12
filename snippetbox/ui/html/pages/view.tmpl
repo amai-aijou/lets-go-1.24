@@ -9,8 +9,9 @@
 		</div>
 		<pre><code>{{.Content}}</code></pre>
 		<div class='metadata'>
-			<time>Created: {{.Created}}</time>
-			<time>Expires: {{.Expires}}</time>
+			<!-- 5.6: humanDate function added -->
+			<time>Created: {{humanDate .Created}}</time>
+			<time>Expires: {{humanDate .Expires}}</time>
 		</div>
 	</div>
 	{{end}}
