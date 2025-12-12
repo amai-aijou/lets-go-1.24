@@ -19,10 +19,13 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 5.3: user the "render" helper function from helpers.go
-	app.render(w, r, http.StatusOK, "home.tmpl", templateData{
-		Snippets: snippets,
-	})
+	// 5.5: Call newTemplateData() helper to get templateData struct containing 'default' data
+	// (right now just the current year), and add the snippets slice to it
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
+
+	// 5.5: Pass the data to the render() helper as normal
+	app.render(w, r, http.StatusOK, "home.tmpl", data)
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -43,9 +46,11 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, http.StatusOK, "view.tmpl", templateData{
-		Snippet: snippet,
-	})
+	// 5.5: call newTemplateData() helper to get default data, and addd snppets slice to it
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
+
+	app.render(w, r, http.StatusOK, "view.tmpl", data)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {

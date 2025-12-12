@@ -4,6 +4,7 @@ import (
 	"bytes" // 5.4
 	"fmt" // 5.3
 	"net/http"
+	"time" // 5.5
 	"runtime/debug" // 3.4: Needed for debug mode
 )
 
@@ -49,4 +50,11 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	// 5.4: Write contents of buffer to http.ResponseWriter.
 	// NOTE: This is another time where we pass http.ResponseWriter to a function that takes an io.Writer.
 	buf.WriteTo(w)
+}
+
+// 5.5: returns a templateData struct initialized with the current year
+func (app *application) newTemplateData(r *http.Request) templateData {
+	return templateData {
+		CurrentYear: time.Now().Year(),
+	}
 }

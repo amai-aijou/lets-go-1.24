@@ -11,9 +11,9 @@ import (
 // to be passed to the HTML templates. This is because Go's html/template package only allows
 // for one piece of dynamic data to be passed in, so we wrap multiple pieces into a single struct!
 type templateData struct {
-	Snippet models.Snippet
-	// 5.2: include a Snippets field within the templatedata struct
-	Snippets []models.Snippet
+	CurrentYear int			// 5.5
+	Snippet		models.Snippet
+	Snippets	[]models.Snippet // 5.2
 }
 
 // 5.3: Function to parse templates at application start, then store as in-memory cache
