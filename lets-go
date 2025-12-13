@@ -118,3 +118,21 @@
     "DB.Query()"		// Used for SELECT queries which return multiple rows
     "DB.QueryRow()"		// Used for SELECT queries which return a single row
     "DB.Exec()"			// Used for statements which don't return rows (INSERT, DELETE, etc)
+
+##################################################
+            "Chapter 5"
+##################################################
+
+
+##################################################
+           "Chapter 6 - Middleware"
+##################################################
+
+"Positioning the middleware"
+  - Where you position middleware matters!
+  - If it goes before the servemux in the chain, it will act on every request received
+    - This is useful for logging requests, since it usually occurs for everything
+        myMiddleware -> servemux -> application handler
+    - If it goes in the middle, it will only be executed for specific routes:
+        servemux -> myMiddleware -> application handler
+    - This is useful for authorization middleware, which may only run during certain routes and requests
