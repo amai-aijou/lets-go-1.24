@@ -19,5 +19,6 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
 	// 6.2: Passes the servemux as "next" parameter to commonHeaders middleware, which later returns http.Handler
-	return commonHeaders(mux)
+	// 6.3: Wrap the 6.2 part in logRequest(); now logRequest -> commonHeaders -> servemux -> application handler
+	return app.logRequest(commonHeaders(mux))
 }
