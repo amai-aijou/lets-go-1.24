@@ -10,6 +10,9 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	// 6.4: BREAK SOMETHING!!! THIS IS A PURPOSEFUL ERROR FOR LEARNING PURPOSES
+	// panic("oops! something went wrong...very, very wrong") //Deliberate panic
+
 	// 4.8: Use SnippetModel.Latest() method, dumping snippet contents to HTTP response
 	snippets, err := app.snippets.Latest()
 	if err != nil {
