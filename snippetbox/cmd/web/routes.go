@@ -2,7 +2,9 @@ package main
 
 import "net/http"
 
-func (app *application) routes() *http.ServeMux {
+// 6.2: Wrap servemux with commonHeaders middleware to add Headers to each request.
+// Now returns http.Handler instead of *http.ServeMux
+func (app *application) routes() http.Handler {
 	// Instantiate a new ServeMux (the basis for our Web Server) 
 	mux := http.NewServeMux()
 
@@ -16,5 +18,6 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	return mux
+	// 6.2: Passes the servemux as "next" parameter to commonHeaders middleware, which later returns http.Handler
+	return commonHeaders(mux)
 }

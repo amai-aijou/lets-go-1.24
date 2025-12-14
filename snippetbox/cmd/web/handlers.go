@@ -10,8 +10,6 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Server", "Go")
-
 	// 4.8: Use SnippetModel.Latest() method, dumping snippet contents to HTTP response
 	snippets, err := app.snippets.Latest()
 	if err != nil {
