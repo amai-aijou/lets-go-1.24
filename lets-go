@@ -136,3 +136,21 @@
     - If it goes in the middle, it will only be executed for specific routes:
         servemux -> myMiddleware -> application handler
     - This is useful for authorization middleware, which may only run during certain routes and requests
+
+##################################################
+           "Chapter 7 - Processing Forms"
+##################################################
+
+"The PostFormValue method"
+  - net/http provides both r.ParseForm() and r.PostformValue(). The latter is not recommended as it silently ignores errors
+      that would help your users (and you) understand what failed.
+  - r.PostForm.Get() only returns the first value for a specific form field. You can't use it with groups of checkboxes etc.
+      Instead, you'll need to use the r.PostForm map directly.
+  - r.PostForm map type is url.Values, which in turn has type map[string][]string
+  - For fields with multiple values, you can loop over the underlying map to access them:
+
+for i, item := range r.Postform["items"] {
+	fmt.Fprintf(w, "%d: Item %s\n", i, item)
+}
+
+  - the ? in hyperlinks is called "query string parameters". like example.com/test?title=value&content=value

@@ -61,9 +61,25 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	title := "O snail"
-	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n- Kobayashi Issa"
-	expires := 7
+	// 7.2: First we call r.ParseForm() to add any data in POST request bodies to r.PostForm map.
+	// Works the same for PUT and PATCH. If there are errors, we use app.ClientError() to send 400 to user
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// 7.2: Use r.PostForm.Get() to retrieve title and content from r.PostForm map
+	title := r.PostForm.Get("title")
+	content := r.PostForm.Get("content")
+
+	// 7.2: PostForm.Get() always returns the form data as string. Since we expect a number, and want to present as integer...
+	// ...we need to manually convert form data to an integer using strconv.Atoi(), and send a 400 Bad Request if that fails
+	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
 	// Pass data to the SnippetModel.Insert() method, receiving ID of the new record back
 	id, err := app.snippets.Insert(title, content, expires)
