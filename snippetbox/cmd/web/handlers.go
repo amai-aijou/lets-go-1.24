@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"		// 7.3
+	"unicode/utf8"	// 7.3
 
 	"snippetbox.nerv.com/internal/models"
 )
@@ -78,6 +80,28 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	
+	// 7.3: Initialize map to hold validation errors for the form fields
+	fieldErrors := make(map[string]string)
+
+	// 7.3: Check that title value is not blank and not more than 100 characters long. If it fails either of those checks,
+	// add a message to the errors map using the field name as the key
+	if strings.TrimSpace(title) == "" {
+		fieldErrors["title"] = "This field cannot be blank"
+	} else if utf8.RuneCountInString(title) > 100 {
+		fieldErrors["title"] = "This field cannot be more than 100 characters long"
+	}
+
+	// 7.3: Check the 'expires' value matches one of the permitted 1/7/365 radio button values from the page
+	if expires != 1 && expires != 7 && expires != 365 {
+		fieldErrors["expires"] = "This field must equal 1, 7, or 365"
+	}
+
+	// 7.3: If there are errors, dump them in plain-text HTTP response and return from the handler
+	if len(fieldErrors) > 0 {
+		fmt.Fprint(w, fieldErrors)
 		return
 	}
 
