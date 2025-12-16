@@ -59,7 +59,21 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 
+	// 7.4: Initialize a new snippetCreateForm instance and pass it to the template. Great time to set default/'initial' values for the form
+	data.Form = snippetCreateForm{
+		Expires: 365,
+	}
+
 	app.render(w, r, http.StatusOK, "create.tmpl", data)
+}
+
+// 7.4: Define a snippetCreateForm to represent the form data and validation errors for the form fields. all struct fields
+// are deliberately exported. struct fields must be exported to be read by html/template package when rendering template
+type snippetCreateForm struct {
+	Title		string
+	Content		string
+	Expires		int
+	FieldErrors	map[string]string
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -71,42 +85,55 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// 7.2: Use r.PostForm.Get() to retrieve title and content from r.PostForm map
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-
 	// 7.2: PostForm.Get() always returns the form data as string. Since we expect a number, and want to present as integer...
 	// ...we need to manually convert form data to an integer using strconv.Atoi(), and send a 400 Bad Request if that fails
+	// 7.4: Get the expires value from the form as normal
 	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	
-	// 7.3: Initialize map to hold validation errors for the form fields
-	fieldErrors := make(map[string]string)
+
+	// 7.3: Initialize map to hold validation errors for the form fields (in 7.4, this is simply part of the snippetCreateForm struct)
+	// 7.4: Create an instance of snippetCreateForm struct containing values from the form and an empty map for validation errors
+	form := snippetCreateForm{
+		Title:			r.PostForm.Get("title"),
+		Content:		r.PostForm.Get("content"),
+		Expires:		expires,
+		FieldErrors:	map[string]string{},
+	}
 
 	// 7.3: Check that title value is not blank and not more than 100 characters long. If it fails either of those checks,
 	// add a message to the errors map using the field name as the key
-	if strings.TrimSpace(title) == "" {
-		fieldErrors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
-		fieldErrors["title"] = "This field cannot be more than 100 characters long"
+	// 7.4: Update the validation checks so they operate on the snippetCreateForm instance
+	if strings.TrimSpace(form.Title) == "" {
+		form.FieldErrors["title"] = "This field cannot be blank"
+	} else if utf8.RuneCountInString(form.Title) > 100 {
+		form.FieldErrors["title"] = "This field cannot be more than 100 characters long"
+	}
+
+	if strings.TrimSpace(form.Content) == "" {
+		form.FieldErrors["content"] = "This field cannot be blank"
 	}
 
 	// 7.3: Check the 'expires' value matches one of the permitted 1/7/365 radio button values from the page
-	if expires != 1 && expires != 7 && expires != 365 {
-		fieldErrors["expires"] = "This field must equal 1, 7, or 365"
+	if form.Expires != 1 && form.Expires != 7 && form.Expires != 365 {
+		form.FieldErrors["expires"] = "This field must equal 1, 7, or 365"
 	}
 
 	// 7.3: If there are errors, dump them in plain-text HTTP response and return from the handler
-	if len(fieldErrors) > 0 {
-		fmt.Fprint(w, fieldErrors)
+	// 7.4: If there are validation errors, then re-render the create.tmpl template, passing in the snippetCreateForm instance
+	// as dynamic data in the Form field. Use HTTP status code 422 Unprocessable Entity in response to indicate validation error
+	if len(form.FieldErrors) > 0 {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
 		return
 	}
 
 	// Pass data to the SnippetModel.Insert() method, receiving ID of the new record back
-	id, err := app.snippets.Insert(title, content, expires)
+	// 7.4: Update line to pass the data from snippetCreateForm instance to our Insert() method.
+	id, err := app.snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

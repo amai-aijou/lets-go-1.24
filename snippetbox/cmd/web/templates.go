@@ -15,6 +15,7 @@ type templateData struct {
 	CurrentYear int			// 5.5
 	Snippet		models.Snippet
 	Snippets	[]models.Snippet // 5.2
+	Form		any			// 7.4
 }
 
 // 5.5: Create a humanDate function which returns a nicely-formatted string representation of time.Time value
