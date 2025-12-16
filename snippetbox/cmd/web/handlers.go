@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"		// 7.3
-	"unicode/utf8"	// 7.3
+	//"strings"		// 7.3
+	//"unicode/utf8"	// 7.3
 
 	"snippetbox.nerv.com/internal/models"
+	"snippetbox.nerv.com/internal/validator" // 7.5
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -69,11 +70,12 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 
 // 7.4: Define a snippetCreateForm to represent the form data and validation errors for the form fields. all struct fields
 // are deliberately exported. struct fields must be exported to be read by html/template package when rendering template
+// 7.5: Remove the explicity FieldErrors struct field; instead embed Validator stuct. snippetCreateForm "inherits" all fields and methods of Validator stuct
 type snippetCreateForm struct {
-	Title		string
-	Content		string
-	Expires		int
-	FieldErrors	map[string]string
+	Title				string
+	Content				string
+	Expires				int
+	validator.Validator
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -100,9 +102,24 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		Title:			r.PostForm.Get("title"),
 		Content:		r.PostForm.Get("content"),
 		Expires:		expires,
-		FieldErrors:	map[string]string{},
+		// 7.5: remove this assignment:	FieldErrors:	map[string]string{},
 	}
 
+	// 7.5: since Validator struct is embedded in snippetCreateForm struct, we can call Validator.CheckField() directly on it.
+	// it adds the provided key and err to FieldErrors map if check != true.
+	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
+	form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
+	form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
+	form.CheckField(validator.PermittedValue(form.Expires, 1, 7, 365), "expires", "This field must equal 1, 7, or 365")
+
+	// 7.5: Use Validator.Valid() to see if checks failed. If so, re-render template, passing in the form as before
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
+		return
+	}
+/*
 	// 7.3: Check that title value is not blank and not more than 100 characters long. If it fails either of those checks,
 	// add a message to the errors map using the field name as the key
 	// 7.4: Update the validation checks so they operate on the snippetCreateForm instance
@@ -130,7 +147,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		app.render(w, r, http.StatusUnprocessableEntity, "create.tmpl", data)
 		return
 	}
-
+*/
 	// Pass data to the SnippetModel.Insert() method, receiving ID of the new record back
 	// 7.4: Update line to pass the data from snippetCreateForm instance to our Insert() method.
 	id, err := app.snippets.Insert(form.Title, form.Content, form.Expires)
