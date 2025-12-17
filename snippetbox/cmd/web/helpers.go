@@ -2,10 +2,13 @@ package main
 
 import (
 	"bytes" // 5.4
+	"errors" // 7.6
 	"fmt" // 5.3
 	"net/http"
 	"time" // 5.5
 	"runtime/debug" // 3.4: Needed for debug mode
+
+	"github.com/go-playground/form/v4" // 7.6
 )
 
 // serverError helper writes an Error-level log entry, then sends 500 to user
@@ -57,4 +60,29 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData {
 		CurrentYear: time.Now().Year(),
 	}
+}
+
+// 7.6: decodePostForm() helper method for go-playground/form. The second parameter, dst, is the target destination to decode form data to
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+	// 7.6: call ParseForm() on the request
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	// 7.6: Call Decode(), passing target destination as the first parameter
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		// 7.6: If we use an invalid target dst, return an error with type form.InvalidDecoderError. We use errors.As() to check for this and panic
+		var invalidDecoderError *form.InvalidDecoderError
+
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+
+		// 7.6: For all other errors, return them as normal
+		return err
+	}
+
+	return nil
 }

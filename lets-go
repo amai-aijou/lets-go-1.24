@@ -120,7 +120,7 @@
     "DB.Exec()"			// Used for statements which don't return rows (INSERT, DELETE, etc)
 
 ##################################################
-            "Chapter 5"
+      "Chapter 5 - Dynamic HTML Templates"
 ##################################################
 
 
@@ -154,3 +154,19 @@ for i, item := range r.Postform["items"] {
 }
 
   - the ? in hyperlinks is called "query string parameters". like example.com/test?title=value&content=value
+
+"Panicking vs Returning Errors"
+  - Best Practice is to return errors and handle them gracefully. Panic should be reserved only for the most dire of situations
+  - There are specific circumstances where a panic is called for however, such as Programmer Errors (see below)
+
+"Operational Errors"
+  - Occur during normal operation.
+  - Database Query timeout, network resource unavailable, bad user input. Often outside the control of the program.
+  - Return these errors and handle them gracefully
+
+"Programmer Errors"
+  - Errors that should not occur during normal operation. Only happen due to a developer mistake or logical error.
+  - Panic is generally accepted after a serious code problem.
+  - Go itself does this if you access an out-of-bounds index in a slice, or try to close an already-closed channel
+  - Even when acceptable, avoid panic whenever possible, unless returning the error adds an unacceptable amount of error handling
+

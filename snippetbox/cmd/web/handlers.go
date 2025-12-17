@@ -71,17 +71,41 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 // 7.4: Define a snippetCreateForm to represent the form data and validation errors for the form fields. all struct fields
 // are deliberately exported. struct fields must be exported to be read by html/template package when rendering template
 // 7.5: Remove the explicity FieldErrors struct field; instead embed Validator stuct. snippetCreateForm "inherits" all fields and methods of Validator stuct
+// 7.6: Update struct to include struct tags, which tell the go-playground/form decoder how to map HTML form values into the struct fields. Here, we tell the decoder
+// to store the value from the HTML form input with the name "title' in the Title field. struct tag `form:"-"` tells the decoder to completely ignore a field during decoding
 type snippetCreateForm struct {
 	Title				string
 	Content				string
 	Expires				int
-	validator.Validator
+	validator.Validator `form:"-"`
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+
+	// 7.6: Update Handler to use decodePostForm() helper; remove r.ParseForm():
+	var form snippetCreateForm
+	
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+/*
 	// 7.2: First we call r.ParseForm() to add any data in POST request bodies to r.PostForm map.
 	// Works the same for PUT and PATCH. If there are errors, we use app.ClientError() to send 400 to user
 	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// 7.6: Declare empty instance of snippetCreateForm struct
+	var form snippetCreateForm
+
+	// 7.6: Call the Decode() method of the form decoder, passing current request and a pointer to snippetCreateForm struct, filling struct with values from the HTML form.
+	// If there's a problem, return a 400 Bad Request response to the client
+	err = app.formDecoder.Decode(&form, r.PostForm)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -104,7 +128,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		Expires:		expires,
 		// 7.5: remove this assignment:	FieldErrors:	map[string]string{},
 	}
-
+*/
 	// 7.5: since Validator struct is embedded in snippetCreateForm struct, we can call Validator.CheckField() directly on it.
 	// it adds the provided key and err to FieldErrors map if check != true.
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")

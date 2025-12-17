@@ -11,7 +11,8 @@ import (
 	// Import the models package created in internal/models
 	"snippetbox.nerv.com/internal/models"
 
-
+	
+	"github.com/go-playground/form/v4"	// 7.6
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -20,6 +21,7 @@ type application struct {
 	logger			*slog.Logger
 	snippets		*models.SnippetModel
 	templateCache	map[string]*template.Template
+	formDecoder		*form.Decoder
 }
 
 func main() {
@@ -50,12 +52,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	// 7.6: Initialize a decoder instance
+	formDecoder := form.NewDecoder()
+
 	// Instantiate a new application struct containing all dependencies
 	// AND: Instantiate a new SnippetModel instance with connection pool
 	app := &application{
 		logger:			logger,
 		snippets:		&models.SnippetModel{DB: db},
 		templateCache:	templateCache,
+		formDecoder:	formDecoder,
 	}
 
     // Info() method starting message (with listen addr as attribute)
