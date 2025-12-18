@@ -7,11 +7,14 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time" // 8.2
 
 	// Import the models package created in internal/models
 	"snippetbox.nerv.com/internal/models"
 
 	
+	"github.com/alexedwards/scs/mysqlstore"	// 8.2
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"	// 7.6
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -22,6 +25,7 @@ type application struct {
 	snippets		*models.SnippetModel
 	templateCache	map[string]*template.Template
 	formDecoder		*form.Decoder
+	sessionManager	*scs.SessionManager		// 8.2
 }
 
 func main() {
@@ -55,6 +59,12 @@ func main() {
 	// 7.6: Initialize a decoder instance
 	formDecoder := form.NewDecoder()
 
+	// 8.2: initialize a new session manager, then configure it to use MySQL DB as session store.
+	// lifetime: 12hrs (expires 12hrs after being created)
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	// Instantiate a new application struct containing all dependencies
 	// AND: Instantiate a new SnippetModel instance with connection pool
 	app := &application{
@@ -62,6 +72,7 @@ func main() {
 		snippets:		&models.SnippetModel{DB: db},
 		templateCache:	templateCache,
 		formDecoder:	formDecoder,
+		sessionManager:	sessionManager, // 8.2
 	}
 
     // Info() method starting message (with listen addr as attribute)

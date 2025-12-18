@@ -17,11 +17,16 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
+	// 8.2: New middleware chain for dynamic application routes, like Session Manager, since it doesn't apply to all routes
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
 	//API Handlers for HTTP endpoints
-	mux.HandleFunc("GET /{$}", app.home)
-	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
-	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
-	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
+	// 8.2: Update to use dynamic middleware chain. Since alice.ThenFunc returns an http.Handler (instead of http.HandlerFunc),
+	// we need to register the routes using mux.Handle() instead of mux.HandleFunc()
+	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
+	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
+	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
+	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
 
 	// 6.5: Create middleware chain containing 'standard' middleware, used for every request application receives
 	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
