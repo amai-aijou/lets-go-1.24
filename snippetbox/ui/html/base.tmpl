@@ -17,6 +17,10 @@
 		<!-- Invoke the navigation template from ./partials -->
 		{{template "nav" .}}
 		<main>
+			<!-- 8.3: Display the flash message ("toast notification") if one exists -->
+			{{with .Flash}}
+				<div class='flash'>{{.}}</div>
+			{{end}}
 			{{template "main" .}}
 		</main>
 		<footer>

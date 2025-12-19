@@ -58,7 +58,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 // 5.5: returns a templateData struct initialized with the current year
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData {
-		CurrentYear: time.Now().Year(),
+		CurrentYear:	time.Now().Year(),
+		// 8.3: Add flash message to the template data, if one exists
+		Flash:			app.sessionManager.PopString(r.Context(), "flash"),
 	}
 }
 

@@ -50,9 +50,18 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 8.3: Use PopString() to retrieve value for the "flash" key (for toast notification from SnippetCreatePost)
+	// PopString() deletes the key/value pair from session data. If no matching key, returns empty string
+	// EDIT: J/K take it out...we automated this by making it part of the newTemplateData() helper function
+	//flash := app.sessionManager.PopString(r.Context(), "flash")
+
 	// 5.5: call newTemplateData() helper to get default data, and addd snppets slice to it
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
+
+	// 8.3: Pass the flash message to the template
+	// EDIT: JK again...we're doing this through newTemplateData()
+	//data.Flash = flash
 
 	app.render(w, r, http.StatusOK, "view.tmpl", data)
 }
@@ -74,10 +83,10 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 // 7.6: Update struct to include struct tags, which tell the go-playground/form decoder how to map HTML form values into the struct fields. Here, we tell the decoder
 // to store the value from the HTML form input with the name "title' in the Title field. struct tag `form:"-"` tells the decoder to completely ignore a field during decoding
 type snippetCreateForm struct {
-	Title				string
-	Content				string
-	Expires				int
-	validator.Validator `form:"-"`
+	Title				string	`form:"title"`
+	Content				string	`form:"content"`
+	Expires				int		`form:"expires"`
+	validator.Validator			`form:"-"`
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -179,6 +188,9 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		app.serverError(w, r, err)
 		return
 	}
+
+	// 8.3: Use Put() to add string value and corresponding key ("flash") to the session data. This creates a toast notification in browser!
+	app.sessionManager.Put(r.Context(), "flash", "Snippet successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }

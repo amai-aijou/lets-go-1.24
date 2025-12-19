@@ -12,7 +12,7 @@
 		<input type='text' name='title' value='{{.Form.Title}}'>
 	</div>
 	<div>
-		<label>Content</label>
+		<label>Content:</label>
 		<!-- 7.4: render value of .Form.FieldErrors.content if not empty -->
 		{{with .Form.FieldErrors.content}}
 			<label class='error'>{{.}}</label>
@@ -28,7 +28,7 @@
 		{{end}}
 		<!-- 7.4: use 'if' to check if value of repopulated 'expires' field is 365. If so, render 'checked' box again -->
 		<input type='radio' name='expires' value='365' {{if (eq .Form.Expires 365)}}checked{{end}}> One Year
-		<input type='radio' name='expires' value='7' {{if (eq .Form.Expires 7)}}checkedd{{end}}> One Week
+		<input type='radio' name='expires' value='7' {{if (eq .Form.Expires 7)}}checked{{end}}> One Week
 		<input type='radio' name='expires' value='1' {{if (eq .Form.Expires 1)}}checked{{end}}> One Day
 	</div>
 	<div>
