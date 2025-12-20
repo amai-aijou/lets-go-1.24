@@ -94,8 +94,8 @@ func main() {
 	// Creates a new Web Server with ListenAndServer. seems to use "err" because
 	// errors are returned through the server as non-nil entries (caight by logger.Error)
 	// 9.1: Update from http.ListenAndServe to new srv.ListenAndServe(), with custom struct above
-	// 9.4: 
-	err = srv.ListenAndServe()
+	// 9.4: TLS Connection: Use ListenAndServeTLS() to start HTTPS server. Pass in cert/key pair
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 
 	// Error() method logs errors returned by http.ListenAndServ; terminate with code 1
 	logger.Error(err.Error())
