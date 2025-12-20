@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls" // 9.5
 	"database/sql"
 	"flag"
 	"html/template" // 5.3
@@ -77,6 +78,24 @@ func main() {
 		sessionManager:	sessionManager, // 8.2
 	}
 
+	// 9.5: Initialize tls.Config struct to hold custom TLS settings.
+	tlsConfig := &tls.Config{
+		CurvePreferences:		[]tls.CurveID{tls.X25519, tls.CurveP256}, // 9.5: Only allow elliptic curves with assembly implementations to prevent high CPU usage
+		MinVersion:				tls.VersionTLS10,
+		MaxVersion:				tls.VersionTLS13,
+		CipherSuites:			[]uint16{
+			tls.TLS_AES_128_GCM_SHA256,
+	        tls.TLS_AES_256_GCM_SHA384,
+			tls.TLS_CHACHA20_POLY1305_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+		},
+	}
+
 	// 9.1: Manually create http.Server struct for more control over server than http.ListenAndServe() can give.
 	// Initialize http.Server struct. Set Addr and Handler fields to use flags from above
 	srv := &http.Server{
@@ -84,6 +103,7 @@ func main() {
 		Handler:	app.routes(),
 		// 9.2: create *log.logger from structured logger handler to write log entries at Error level, and assign to ErrorLog field
 		ErrorLog:	slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig:	tlsConfig,	// 9.5: Set TLSConfig in http.Server struct to use tlsConfig variable created for &tls.Config struct (custom settings)
 	}
 
     // Info() method starting message (with listen addr as attribute)
