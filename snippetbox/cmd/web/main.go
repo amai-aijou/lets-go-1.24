@@ -64,6 +64,8 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
+	// 9.4: Sets Secure attribute so session cookies are only sent by user's browser in HTTPS (prevent sending during unsecure HTTP connection)
+	sessionManager.Cookie.Secure = true
 
 	// Instantiate a new application struct containing all dependencies
 	// AND: Instantiate a new SnippetModel instance with connection pool
@@ -92,6 +94,7 @@ func main() {
 	// Creates a new Web Server with ListenAndServer. seems to use "err" because
 	// errors are returned through the server as non-nil entries (caight by logger.Error)
 	// 9.1: Update from http.ListenAndServe to new srv.ListenAndServe(), with custom struct above
+	// 9.4: 
 	err = srv.ListenAndServe()
 
 	// Error() method logs errors returned by http.ListenAndServ; terminate with code 1
