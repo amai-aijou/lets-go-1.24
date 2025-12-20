@@ -30,7 +30,7 @@ type application struct {
 
 func main() {
 	// CLI flags for runtime-configurable values
-	// flag.Parse() must be called *before* use of variables to store them
+	// flag.Parse() must be called before use of variables to store them
 	addr := flag.String("addr", ":4000", "HTTP network address")
 
 	// Create DSN (Data Source Name) for Go MySQL driver
