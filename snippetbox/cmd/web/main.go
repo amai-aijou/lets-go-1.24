@@ -80,6 +80,8 @@ func main() {
 	srv := &http.Server{
 		Addr:		*addr,
 		Handler:	app.routes(),
+		// 9.2: create *log.logger from structured logger handler to write log entries at Error level, and assign to ErrorLog field
+		ErrorLog:	slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
 
     // Info() method starting message (with listen addr as attribute)
