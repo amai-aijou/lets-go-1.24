@@ -75,6 +75,13 @@ func main() {
 		sessionManager:	sessionManager, // 8.2
 	}
 
+	// 9.1: Manually create http.Server struct for more control over server than http.ListenAndServe() can give.
+	// Initialize http.Server struct. Set Addr and Handler fields to use flags from above
+	srv := &http.Server{
+		Addr:		*addr,
+		Handler:	app.routes(),
+	}
+
     // Info() method starting message (with listen addr as attribute)
 	// flag.String (line 14) returns pointer to value, not actual value
 	// pointers must be dereferenced with the * prefix. need to google this later!
@@ -82,7 +89,8 @@ func main() {
 
 	// Creates a new Web Server with ListenAndServer. seems to use "err" because
 	// errors are returned through the server as non-nil entries (caight by logger.Error)
-	err = http.ListenAndServe(*addr, app.routes())
+	// 9.1: Update from http.ListenAndServe to new srv.ListenAndServe(), with custom struct above
+	err = srv.ListenAndServe()
 
 	// Error() method logs errors returned by http.ListenAndServ; terminate with code 1
 	logger.Error(err.Error())
