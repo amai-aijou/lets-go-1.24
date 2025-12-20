@@ -99,11 +99,16 @@ func main() {
 	// 9.1: Manually create http.Server struct for more control over server than http.ListenAndServe() can give.
 	// Initialize http.Server struct. Set Addr and Handler fields to use flags from above
 	srv := &http.Server{
-		Addr:		*addr,
-		Handler:	app.routes(),
+		Addr:			*addr,
+		Handler:		app.routes(),
 		// 9.2: create *log.logger from structured logger handler to write log entries at Error level, and assign to ErrorLog field
-		ErrorLog:	slog.NewLogLogger(logger.Handler(), slog.LevelError),
-		TLSConfig:	tlsConfig,	// 9.5: Set TLSConfig in http.Server struct to use tlsConfig variable created for &tls.Config struct (custom settings)
+		ErrorLog:		slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		// 9.5: Set TLSConfig in http.Server struct to use tlsConfig variable created for &tls.Config struct (custom settings)
+		TLSConfig:		tlsConfig,	
+		// 9.6: Add Idle, Read, and Write timeouts to the server
+		IdleTimeout:	time.Minut,
+		ReadTimeout:	5 * time.Second,
+		WriteTimeout:	10 * time.Second,
 	}
 
     // Info() method starting message (with listen addr as attribute)
