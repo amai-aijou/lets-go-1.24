@@ -106,7 +106,7 @@ func main() {
 		// 9.5: Set TLSConfig in http.Server struct to use tlsConfig variable created for &tls.Config struct (custom settings)
 		TLSConfig:		tlsConfig,	
 		// 9.6: Add Idle, Read, and Write timeouts to the server
-		IdleTimeout:	time.Minut,
+		IdleTimeout:	time.Minute,
 		ReadTimeout:	5 * time.Second,
 		WriteTimeout:	10 * time.Second,
 	}
