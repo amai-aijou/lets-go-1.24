@@ -24,6 +24,7 @@ import (
 type application struct {
 	logger			*slog.Logger
 	snippets		*models.SnippetModel
+	users			*models.UserModel		// 10.2
 	templateCache	map[string]*template.Template
 	formDecoder		*form.Decoder
 	sessionManager	*scs.SessionManager		// 8.2
@@ -73,6 +74,7 @@ func main() {
 	app := &application{
 		logger:			logger,
 		snippets:		&models.SnippetModel{DB: db},
+		users:			&models.UserModel{DB: db},
 		templateCache:	templateCache,
 		formDecoder:	formDecoder,
 		sessionManager:	sessionManager, // 8.2
@@ -113,8 +115,7 @@ func main() {
 
     // Info() method starting message (with listen addr as attribute)
 	// flag.String (line 14) returns pointer to value, not actual value
-	// pointers must be dereferenced with the * prefix. need to google this later!
-    logger.Info("starting server", "addr", *addr)
+    logger.Info("starting server", "addr", srv.Addr)
 
 	// Creates a new Web Server with ListenAndServer. seems to use "err" because
 	// errors are returned through the server as non-nil entries (caight by logger.Error)
