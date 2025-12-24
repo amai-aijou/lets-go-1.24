@@ -1,10 +1,27 @@
 package validator
 
 import (
+	"regexp"	// 10.3
     "slices"
     "strings"
     "unicode/utf8"
 )
+
+// 10.3: Function parses RegEx pattern to sanity-check email address format. Returns a pointer to a 'compiled' regexp.Regexp type (or panics!).
+// Note: Parses pattern once at startup and storing the compiled 8regexp.Regexp in a variable is more performant than re-parsing each time it's needed
+// Note: Regex is the pattern currently recommended by W3C and WHATWG for email validation.
+// Note: Pattern is an interpreted string literal, so it needs double-escape chars \\. Raw string literal uses `` meaning it can't handle that character (notice no " in the pattern!)
+var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+// 10.3: MinChars() returns true is a char contains at least n characters
+func MinChars(value string, n int) bool {
+	return utf8.RuneCountInString(value) >= n
+}
+
+// 10.3: Matches() returns true if a value matches with a provided compiled regex pattern
+func Matches(value string, rx *regexp.Regexp) bool {
+	return rx.MatchString(value)
+}
 
 // 7.6: Define a new Validator struct containing a map of validation error messages for form fields
 type Validator struct {
