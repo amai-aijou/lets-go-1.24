@@ -317,5 +317,19 @@ func (app *application) userLoginPost (w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userLogoutPost (w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logout the user...")
+	// 10.5: Use RenewToken() method to change the session ID (give a "clean slate" session after logging out, this is Best Practice)
+	err := app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// 10.5: Remove authenticatedUserID from session data so the user is "logged out"
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+
+	// 10.5: Add a flash message to the session to confirm they've been logged out
+	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
+
+	// 10.5: Redirect user to the application homepage
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
