@@ -25,12 +25,19 @@ func Matches(value string, rx *regexp.Regexp) bool {
 
 // 7.6: Define a new Validator struct containing a map of validation error messages for form fields
 type Validator struct {
-    FieldErrors map[string]string
+	NonFieldErrors	[]string // 10.4
+    FieldErrors		map[string]string 
 }
 
 // 7.6: Valid() returns true if the FieldErrors map doesn't contain any entries.
+// 10.4: Add NonFieldErrors. Now both must return zero, meaning there are no errors of either type
 func (v *Validator) Valid() bool {
-    return len(v.FieldErrors) == 0
+    return len(v.FieldErrors) == 0 && len(v.NonFieldErrors) == 0
+}
+
+// 10.4: AddNonFieldError() helper for any error not related to a field in the form
+func (v *Validator) AddNonFieldError(message string) {
+	v.NonFieldErrors = append(v.NonFieldErrors, message)
 }
 
 // 7.6: AddFieldError() adds an error message to the FieldErrors map if no entry already exists for a given key
