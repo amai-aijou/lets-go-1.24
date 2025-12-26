@@ -12,11 +12,12 @@ import (
 // to be passed to the HTML templates. This is because Go's html/template package only allows
 // for one piece of dynamic data to be passed in, so we wrap multiple pieces into a single struct!
 type templateData struct {
-	CurrentYear int			// 5.5
-	Snippet		models.Snippet
-	Snippets	[]models.Snippet // 5.2
-	Form		any			// 7.4
-	Flash		string		// 8.3
+	CurrentYear		int					// 5.5
+	Snippet			models.Snippet
+	Snippets		[]models.Snippet	// 5.2
+	Form			any					// 7.4
+	Flash			string				// 8.3
+	IsAuthenticated	bool				// 10.6
 }
 
 // 5.5: Create a humanDate function which returns a nicely-formatted string representation of time.Time value

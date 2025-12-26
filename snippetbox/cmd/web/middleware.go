@@ -56,3 +56,20 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// 10.6: Ensure unauthenticated users cannot reach the Snippet Create page via direct URL, etc.
+func (app *application) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 10.6: If user is not authenticated, redirect to login page and return from middleware chain to stop execution
+		if !app.isAuthenticated(r) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
+		}
+
+		// 10.6: If authenticated, set "Cache-Control: no-store" header so pages requiring auth are not stored in browser or intermediate cache
+		w.Header().Add("Cache-Control", "no-store")
+
+		// 10.6: Call the next handler in the chain as usual
+		next.ServeHTTP(w, r)
+	})
+}
