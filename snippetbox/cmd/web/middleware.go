@@ -3,6 +3,8 @@ package main
 import (
 	"fmt" // 6.4
 	"net/http"
+
+	"github.com/justinas/nosurf" // 10.7: CSRF Protection
 )
 
 func commonHeaders(next http.Handler) http.Handler {
@@ -72,4 +74,16 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 		// 10.6: Call the next handler in the chain as usual
 		next.ServeHTTP(w, r)
 	})
+}
+
+// 10.7: Create a NoSurf() middleware to prevent CSRF attacks. Uses customized CSRF cookie with the Secure, Path, and HttpOnly attributes set
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly:	true,
+		Path:		"/",
+		Secure:		true,
+	})
+
+	return csrfHandler
 }

@@ -8,7 +8,8 @@ import (
 	"time" // 5.5
 	"runtime/debug" // 3.4: Needed for debug mode
 
-	"github.com/go-playground/form/v4" // 7.6
+	"github.com/go-playground/form/v4"	// 7.6
+	"github.com/justinas/nosurf"		// 10.7: CSRF protection
 )
 
 // serverError helper writes an Error-level log entry, then sends 500 to user
@@ -60,9 +61,11 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData {
 		CurrentYear:	time.Now().Year(),
 		// 8.3: Add flash message to the template data, if one exists
-		Flash:			app.sessionManager.PopString(r.Context(), "flash"),
+		Flash:				app.sessionManager.PopString(r.Context(), "flash"),
 		// 10.6: Add user authentication status to the template data
 		IsAuthenticated:	app.isAuthenticated(r),
+		// 10.7: Add CSRF protection
+		CSRFToken:			nosurf.Token(r),
 	}
 }
 

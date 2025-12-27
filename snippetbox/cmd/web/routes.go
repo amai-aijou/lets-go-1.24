@@ -18,7 +18,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
 	// 8.2: New middleware chain for dynamic application routes, like Session Manager, since it doesn't apply to all routes
-	dynamic := alice.New(app.sessionManager.LoadAndSave)
+	// 10.7: Add CSRF nosurf() middleware on all dynamic routes
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
 
 	//API Handlers for HTTP endpoints
 	// 8.2: Update to use dynamic middleware chain. Since alice.ThenFunc returns an http.Handler (instead of http.HandlerFunc),

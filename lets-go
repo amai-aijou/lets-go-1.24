@@ -170,3 +170,12 @@ for i, item := range r.Postform["items"] {
   - Go itself does this if you access an out-of-bounds index in a slice, or try to close an already-closed channel
   - Even when acceptable, avoid panic whenever possible, unless returning the error adds an unacceptable amount of error handling
 
+
+##################################################
+        "Chapter 10 - User Authentication"
+##################################################
+
+"SameSite cookies"
+  - By default, alexedwards/scs package sets Samesite=Lax on the session cookie. This means session cookie won't be sent by browser for cross-site requests
+      with the HTTP methods POST, PUT, or DELETE.
+  - As long as the application uses POST for any state-changing HTTP request, such as login, signup, form submission, checkout, etc. 
